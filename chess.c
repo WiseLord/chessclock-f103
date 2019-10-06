@@ -4,12 +4,11 @@
 #include "swtimers.h"
 
 static ChessClock chess;
-static ChessTimer_type chessTimer[CHESS_TIM_END];
 
 void chessTimSet(ChessTimer timer, int32_t value, bool enable)
 {
-    chessTimer[timer].value = value;
-    chessTimer[timer].enabled = enable;
+    chess.tim[timer].value = value;
+    chess.tim[timer].enabled = enable;
 }
 
 void chessInit(void)
@@ -27,14 +26,14 @@ void chessInit(void)
 void chessActivate(ChessColor color)
 {
     for (ChessColor c = CHESS_WHITE; c < CHESS_END; c++) {
-        chessTimer[CHESS_TIM_GAME_WHITE + c].enabled = (c == color);
+        chess.tim[CHESS_TIM_GAME_WHITE + c].enabled = (c == color);
     }
 }
 
 bool chessIsRunning(void)
 {
     for (ChessColor c = CHESS_WHITE; c < CHESS_END; c++) {
-        if (chessTimer[CHESS_TIM_GAME_WHITE + c].enabled) {
+        if (chess.tim[CHESS_TIM_GAME_WHITE + c].enabled) {
             return true;
         }
     }
@@ -49,13 +48,13 @@ ChessClock *chessGet(void)
 void swTimeChessUpdate(void)
 {
     for (uint8_t i = 0; i < CHESS_TIM_END; i++) {
-        if (chessTimer[i].enabled && chessTimer[i].value >= 0) {
-            chessTimer[i].value--;
+        if (chess.tim[i].enabled && chess.tim[i].value >= 0) {
+            chess.tim[i].value--;
         }
     }
 }
 
 int32_t chessTimGet(ChessTimer timer)
 {
-    return chessTimer[timer].value;
+    return chess.tim[timer].value;
 }

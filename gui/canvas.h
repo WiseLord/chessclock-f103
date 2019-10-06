@@ -16,21 +16,6 @@ typedef struct {
     const Layout *layout;
 } Canvas;
 
-typedef uint8_t RtcMode;
-enum {
-    RTC_HOUR,
-    RTC_MIN,
-    RTC_SEC,
-
-    RTC_NOEDIT,
-};
-
-typedef struct {
-    int8_t hour;
-    int8_t min;
-    int8_t sec;
-} RTC_type;
-
 void canvasInit(void);
 Canvas *canvasGet(void);
 

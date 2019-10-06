@@ -6,11 +6,7 @@ static const Layout lt400x240 = {
     .rect.w = 400,
     .rect.h = 240,
 
-    .time.hmsFont = &fontterminusdig80,
-    .time.dmyFont = &fontterminusdig64,
-    .time.wdFont = &fontterminusmod18x3,
-    .time.timeW = 10,
-    .time.timeB = 130,
+    .chess.gameTimFont = &fontterminusdig58,
 
     .menu.headFont = &fontterminus28b,
     .menu.menuFont = &fontterminus22b,

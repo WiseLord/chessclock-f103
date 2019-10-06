@@ -16,11 +16,6 @@ enum {
     CHESS_END,
 };
 
-typedef struct {
-    int32_t gameTime;
-    int32_t moveTime;
-} ChessClock;
-
 typedef uint8_t ChessTimer;
 enum {
     CHESS_TIM_GAME_WHITE,
@@ -34,7 +29,14 @@ enum {
 typedef struct {
     int32_t value;
     bool enabled;
-} ChessTimer_type;
+    bool clear;
+} ChessTim;
+
+typedef struct {
+    int32_t gameTime;
+    int32_t moveTime;
+    ChessTim tim[CHESS_TIM_END];
+} ChessClock;
 
 void chessInit(void);
 void chessActivate(ChessColor color);

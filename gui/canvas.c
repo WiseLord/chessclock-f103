@@ -9,18 +9,12 @@
 #include "../utils.h"
 
 typedef union {
-    RTC_type rtc;
     struct {
-        uint16_t freq;
-        int16_t value;
-        Icon icon;
-        bool stereo;
-        bool forcedMono;
-        bool rdsFlag;
-    } par;
+        char str[12];
+    } tim[CHESS_TIM_END];
 } DrawData;
 
-static DrawData prev;
+static DrawData drawData;
 
 static Canvas canvas;
 
@@ -67,38 +61,7 @@ void canvasClear(void)
     glcdSetFontColor(canvas.pal->fg);
     glcdSetFontBgColor(canvas.pal->bg);
 
-    memset(&prev, 0, sizeof(prev));
-}
-
-static void drawMenuItem(uint8_t idx, const tFont *fontItem);
-
-static void drawTmSpacer(char spacer, bool clear)
-{
-    if (clear) {
-        glcdWriteUChar(LETTER_SPACE_CHAR);
-        glcdWriteUChar(spacer);
-        glcdWriteUChar(LETTER_SPACE_CHAR);
-    }
-}
-
-static void drawTm(RTC_type *rtc, RtcMode tm, bool clear)
-{
-    int8_t time = *((int8_t *)rtc + tm);
-
-    if (clear) {
-        glcdSetFontColor(canvas.pal->fg);
-        glcdSetFontBgColor(canvas.pal->bg);
-        glcdWriteUChar(LETTER_SPACE_CHAR);
-
-        if (time >= 0) {
-            glcdWriteString(utilMkStr("%02d", time));
-        } else {
-            glcdWriteString("--");
-        }
-        glcdWriteUChar(LETTER_SPACE_CHAR);
-        glcdSetFontColor(canvas.pal->fg);
-        glcdSetFontBgColor(canvas.pal->bg);
-    }
+    memset(&drawData, 0, sizeof(drawData));
 }
 
 static void drawMenuItem(uint8_t idx, const tFont *fontItem)
@@ -189,58 +152,46 @@ void canvasShowMenu(bool clear)
     }
 }
 
-static void canvasShowTimer(bool clear, ChessColor color)
+static void timToStr(int32_t time, char *str)
 {
+    char *buf;
+
+    int16_t msec = time % 1000;
+    time /= 1000;
+    int16_t sec = time % 60;
+    time /= 60;
+    int16_t min = time % 60;
+    time /= 60;
+    int16_t hour = time % 24;
+
+    if (hour > 0) {
+        buf = utilMkStr("%02d:%02d:%02d", hour, min, sec);
+    } else {
+        buf = utilMkStr("%02d:%02d:%02d", min, sec, msec / 10);
+    }
+
+    strcpy(str, buf);
+}
+
+static void drawGameTime(bool clear, ChessTimer tim)
+{
+    (void)clear;
+
     const Layout *lt = canvas.layout;
 
-    RTC_type rtc;
-    int32_t value = chessTimGet(CHESS_TIM_GAME_WHITE + color);
-
-    if (value < 0) {
-        rtc.hour = -1;
-        rtc.min = -1;
-        rtc.sec = -1;
-    } else {
-        value /= 1000;
-        rtc.hour = (int8_t)(value / 3600);
-        rtc.min = (int8_t)(value / 60 % 60);
-        rtc.sec = (int8_t)(value % 60);
-    }
-
-    // HH:MM:SS
-    glcdSetFont(lt->time.hmsFont);
-
-    int16_t digW = lt->time.hmsFont->chars[glcdFontSymbolPos('0')].image->width;
-    int16_t ltspW = lt->time.hmsFont->chars[glcdFontSymbolPos(LETTER_SPACE_CHAR)].image->width;
-
-    int16_t timeLen = 6 * digW + 15 * ltspW;    // 6 digits HHMMSS + 13 letter spaces + 2 ':'
-    int16_t timeX = (lt->rect.w - timeLen) / 2;
-
-    if (color == CHESS_WHITE) {
-        glcdSetXY(timeX, lt->time.timeW);
-    } else {
-        glcdSetXY(timeX, lt->time.timeB);
-    }
-    drawTm(&rtc, RTC_HOUR, clear);
-
-    drawTmSpacer(':', clear);
-
-    timeX += digW * 2 + ltspW * 6;
-    glcdSetX(timeX);
-    drawTm(&rtc, RTC_MIN, clear);
-
-    drawTmSpacer(':', clear);
-
-    timeX += digW * 2 + ltspW * 6;
-    glcdSetX(timeX);
-    drawTm(&rtc, RTC_SEC, clear);
-
-    prev.rtc = rtc;
+    int32_t gameTim = chessTimGet(tim);
+    timToStr(gameTim, drawData.tim[tim].str);
+    glcdSetFont(lt->chess.gameTimFont);
+    glcdWriteString(drawData.tim[tim].str);
 }
 
 void canvasShowChess(bool clear)
 {
-    clear = true;
-    canvasShowTimer(clear, CHESS_WHITE);
-    canvasShowTimer(clear, CHESS_BLACK);
+    const Layout *lt = canvas.layout;
+
+    glcdSetXY(0, lt->rect.h / 2);
+    drawGameTime(clear, CHESS_TIM_GAME_WHITE);
+
+    glcdSetXY(lt->rect.w / 2, lt->rect.h / 2);
+    drawGameTime(clear, CHESS_TIM_GAME_BLACK);
 }

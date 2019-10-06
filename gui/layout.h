@@ -11,12 +11,8 @@ extern "C" {
 #include "icons.h"
 
 typedef struct {
-    const tFont *hmsFont;       // Font to draw hours/minutes/seconds
-    const tFont *dmyFont;       // Font to draw day/month/year
-    const tFont *wdFont;        // Font to draw weekday
-    uint8_t timeW;              // Y position of hours/minutes/seconds
-    uint8_t timeB;              // Y position of day/month/year
-} LayoutTime;
+    const tFont *gameTimFont;   // Font to draw game timer
+} LayoutChess;
 
 typedef struct {
     const tFont *headFont;      // Font to draw menu header
@@ -27,7 +23,7 @@ typedef struct {
 typedef struct {
     GlcdRect rect;
 
-    LayoutTime time;
+    LayoutChess chess;
     LayoutMenu menu;
 } Layout;
 

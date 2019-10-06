@@ -16,6 +16,7 @@ static void actionGetEncoder(void);
 static void actionGetTimers(void);
 static void actionRemapBtnShort(void);
 static void actionRemapBtnLong(void);
+static void actionRemapBtnInstant(void);
 static void actionRemapCommon(void);
 static void actionRemapEncoder(void);
 
@@ -78,8 +79,14 @@ static void actionRemapBtnShort(void)
 
     switch (action.value) {
     case BTN_D0:
+        if (scrMode == SCREEN_MENU) {
+            actionSet(ACTION_NAVIGATE, CMD_NAV_UP);
+        }
         break;
     case BTN_D1:
+        if (scrMode == SCREEN_MENU) {
+            actionSet(ACTION_NAVIGATE, CMD_NAV_DOWN);
+        }
         break;
     case BTN_D2:
         break;

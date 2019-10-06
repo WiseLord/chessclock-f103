@@ -202,20 +202,21 @@ void canvasShowChess(bool clear)
         glcdDrawRect(xMid - th, yMid + th, 2 * th, yMid - th, LCD_COLOR_AQUA);
     }
 
-    uint16_t color = canvas.pal->bg;
-
     if (chess->gameMask != drawData.gameMask) {
-        color = canvas.pal->bg;
-        if (chess->gameMask & (1 << CHESS_WHITE)) {
-            color = canvas.pal->fg;
-        }
-        glcdDrawRect(0, yMid + th, xMid - th, yMid - th, color);
+        int16_t x = 0;
+        uint16_t color = canvas.pal->bg;
 
-        color = canvas.pal->bg;
-        if (chess->gameMask & (1 << CHESS_BLACK)) {
+        if (chess->gameMask) {
             color = canvas.pal->fg;
         }
-        glcdDrawRect(xMid + th, yMid + th, xMid - th, yMid - th, color);
+
+        if ((chess->gameMask | drawData.gameMask) & (1 << CHESS_WHITE)) {
+            x = 0;
+        } else if ((chess->gameMask | drawData.gameMask) & (1 << CHESS_BLACK)) {
+            x = xMid + th;
+        }
+
+        glcdDrawRect(x, yMid + th, xMid - th, yMid - th, color);
     }
     drawData.gameMask = chess->gameMask;
 

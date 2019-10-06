@@ -99,7 +99,7 @@ static void actionRemapBtnShort(void)
             actionSet(ACTION_NAVIGATE, CMD_NAV_OK);
         } else {
             if (chessIsRunning()) {
-                chessActivate(CHESS_END);
+                chessPause();
             } else {
                 chessInit();
             }

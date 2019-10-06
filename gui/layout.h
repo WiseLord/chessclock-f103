@@ -11,6 +11,7 @@ extern "C" {
 #include "icons.h"
 
 typedef struct {
+    const tFont *gameTotalFont;   // Font to draw game timer
     const tFont *gameTimFont;   // Font to draw game timer
 } LayoutChess;
 

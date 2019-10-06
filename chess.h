@@ -20,8 +20,13 @@ typedef uint8_t ChessTimer;
 enum {
     CHESS_TIM_GAME_WHITE,
     CHESS_TIM_GAME_BLACK,
+
     CHESS_TIM_MOVE_WHITE,
     CHESS_TIM_MOVE_BLACK,
+
+    CHESS_TIM_COLOR_END,
+
+    CHESS_TIME_TOTAL = CHESS_TIM_COLOR_END,
 
     CHESS_TIM_END,
 };
@@ -29,21 +34,19 @@ enum {
 typedef struct {
     int32_t value;
     bool enabled;
-    bool clear;
 } ChessTim;
 
 typedef struct {
-    int32_t gameTime;
-    int32_t moveTime;
+    int32_t gameTimerInitValue;
+    int32_t moveTimeInitValue;
     ChessTim tim[CHESS_TIM_END];
 } ChessClock;
 
 void chessInit(void);
 void chessActivate(ChessColor color);
+void chessPause(void);
 bool chessIsRunning(void);
 void swTimeChessUpdate(void);
-
-void chessTimSet(ChessTimer timer, int32_t value, bool enable);
 
 ChessClock *chessGet(void);
 int32_t chessTimGet(ChessTimer timer);

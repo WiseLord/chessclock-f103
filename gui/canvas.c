@@ -177,11 +177,8 @@ static void drawGameTime(bool clear, ChessTimer tim)
 {
     (void)clear;
 
-    const Layout *lt = canvas.layout;
-
     int32_t gameTim = chessTimGet(tim);
     timToStr(gameTim, drawData.tim[tim].str);
-    glcdSetFont(lt->chess.gameTimFont);
     glcdWriteString(drawData.tim[tim].str);
 }
 
@@ -189,9 +186,15 @@ void canvasShowChess(bool clear)
 {
     const Layout *lt = canvas.layout;
 
+    glcdSetXY(0, 0);
+    glcdSetFont(lt->chess.gameTotalFont);
+    drawGameTime(clear, CHESS_TIME_TOTAL);
+
     glcdSetXY(0, lt->rect.h / 2);
+    glcdSetFont(lt->chess.gameTimFont);
     drawGameTime(clear, CHESS_TIM_GAME_WHITE);
 
     glcdSetXY(lt->rect.w / 2, lt->rect.h / 2);
+    glcdSetFont(lt->chess.gameTimFont);
     drawGameTime(clear, CHESS_TIM_GAME_BLACK);
 }

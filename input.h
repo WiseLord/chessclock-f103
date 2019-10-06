@@ -29,7 +29,7 @@ extern "C" {
 #define ENC_RES_MIN             -64
 #define ENC_RES_MAX             64
 
-typedef uint16_t CmdBtn;
+typedef uint32_t CmdBtn;
 
 void inputInit(void);
 

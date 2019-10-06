@@ -46,9 +46,11 @@ static void actionGetButtons(void)
 {
     CmdBtn cmdBtn = getBtnCmd();
 
-    if (cmdBtn & 0xFF00) {
-        actionSet(ACTION_BTN_LONG, cmdBtn >> 8);
-    } else if (cmdBtn & 0x00FF) {
+    if (cmdBtn & 0x00FF0000) {
+        actionSet(ACTION_BTN_INSTANT, (cmdBtn >> 16) & 0xFF);
+    } else if (cmdBtn & 0x0000FF00) {
+        actionSet(ACTION_BTN_LONG, (cmdBtn >> 8) & 0xFF);
+    } else if (cmdBtn & 0x000000FF) {
         actionSet(ACTION_BTN_SHORT, cmdBtn & 0xFF);
     }
 }
@@ -76,10 +78,8 @@ static void actionRemapBtnShort(void)
 
     switch (action.value) {
     case BTN_D0:
-        chessActivate(CHESS_WHITE);
         break;
     case BTN_D1:
-        chessActivate(CHESS_BLACK);
         break;
     case BTN_D2:
         break;
@@ -137,6 +137,39 @@ static void actionRemapBtnLong(void)
         break;
     case ENC_B:
         actionSet(ACTION_ENCODER, +1);
+        break;
+    default:
+        break;
+    }
+}
+
+static void actionRemapBtnInstant(void)
+{
+    Screen *screen = screenGet();
+    ScreenMode scrMode = screen->mode;
+
+    switch (action.value) {
+    case BTN_D0:
+        if (scrMode == SCREEN_CHESS) {
+            chessActivate(CHESS_WHITE);
+        }
+        break;
+    case BTN_D1:
+        if (scrMode == SCREEN_CHESS) {
+            chessActivate(CHESS_BLACK);
+        }
+        break;
+    case BTN_D2:
+        break;
+    case BTN_D3:
+        break;
+    case BTN_D4:
+        break;
+    case BTN_D5:
+        break;
+    case ENC_A:
+        break;
+    case ENC_B:
         break;
     default:
         break;
@@ -260,6 +293,9 @@ void actionUserGet(void)
         break;
     case ACTION_BTN_LONG:
         actionRemapBtnLong();
+        break;
+    case ACTION_BTN_INSTANT:
+        actionRemapBtnInstant();
         break;
     default:
         break;

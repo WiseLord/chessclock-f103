@@ -26,7 +26,8 @@ int8_t inputGetEncRes(void)
 void inputPoll(void)
 {
     // Antibounce counter
-    static int16_t btnCnt = 0;
+    static int16_t btnCntPress = 0;
+    static int16_t btnCntRelease = 0;
 
     // Previous state
     static uint8_t btnPrev = BTN_NO;
@@ -56,19 +57,29 @@ void inputPoll(void)
     // On button event place it to command buffer
     if (btnNow) {
         if (btnNow == btnPrev) {
-            btnCnt++;
-            if (btnCnt == LONG_PRESS) {
-                cmdBuf = (btnPrev << 8) & 0xFF00;
+            btnCntPress++;
+            if (btnCntPress == LONG_PRESS) {
+                cmdBuf = (btnPrev << 8) & 0x0000FF00;
                 if (btnNow & (BTN_D3 | BTN_D4 | ENC_A | ENC_B)) {
-                    btnCnt -= AUTOREPEAT;
+                    btnCntPress -= AUTOREPEAT;
                 }
             }
+        } else {
+            if (btnCntRelease == SHORT_PRESS) {
+                cmdBuf |= (btnNow << 16) & 0x00FF0000;
+            }
         }
+        btnCntRelease = 0;
     } else {
-        if ((btnCnt > SHORT_PRESS) && (btnCnt < LONG_PRESS - AUTOREPEAT)) {
+        if (btnNow == btnPrev) {
+            if (btnCntRelease < SHORT_PRESS) {
+                btnCntRelease++;
+            }
+        }
+        if ((btnCntPress > SHORT_PRESS) && (btnCntPress < LONG_PRESS - AUTOREPEAT)) {
             cmdBuf = btnPrev;
         }
-        btnCnt = 0;
+        btnCntPress = 0;
     }
     btnPrev = btnNow;
 }

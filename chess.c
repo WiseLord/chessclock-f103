@@ -22,16 +22,25 @@ void chessInit(void)
     chessTimSet(CHESS_TIM_GAME_WHITE, chess.gameTimerInitValue, false);
     chessTimSet(CHESS_TIM_GAME_BLACK, chess.gameTimerInitValue, false);
     chessTimSet(CHESS_TIME_TOTAL, 0, false);
+    chess.gameMask = 0;
+    chess.gameFinished = false;
 }
 
 void chessActivate(ChessColor color)
 {
+    if (chess.gameFinished) {
+        return;
+    }
+
     for (ChessColor c = CHESS_WHITE; c < CHESS_END; c++) {
         chess.tim[CHESS_TIM_GAME_WHITE + c].enabled = (c == color);
         chess.tim[CHESS_TIM_MOVE_WHITE + c].enabled = (c == color);
     }
     if (color < CHESS_END) {
         chess.tim[CHESS_TIME_TOTAL].enabled = true;
+        if (!chess.gameMask) {
+            chess.gameMask = (uint8_t )(1 << color);
+        }
     }
 }
 
@@ -57,8 +66,12 @@ ChessClock *chessGet(void)
 void swTimeChessUpdate(void)
 {
     for (uint8_t i = 0; i < CHESS_TIM_COLOR_END; i++) {
-        if (chess.tim[i].enabled && chess.tim[i].value >= 0) {
+        if (chess.tim[i].enabled && chess.tim[i].value > 0) {
             chess.tim[i].value--;
+            if (chess.tim[i].value == 0) {
+                chessPause();
+                chess.gameFinished = true;
+            }
         }
     }
     if (chess.tim[CHESS_TIME_TOTAL].enabled) {

@@ -10,8 +10,11 @@
 
 typedef union {
     struct {
-        char str[12];
-    } tim[CHESS_TIM_END];
+        struct {
+            char str[12];
+        } tim[CHESS_TIM_END];
+        uint8_t gameMask;
+    };
 } DrawData;
 
 static DrawData drawData;
@@ -156,6 +159,8 @@ static void timToStr(int32_t time, char *str)
 {
     char *buf;
 
+    time += 5; // Rounding
+
     int16_t msec = time % 1000;
     time /= 1000;
     int16_t sec = time % 60;
@@ -186,15 +191,69 @@ void canvasShowChess(bool clear)
 {
     const Layout *lt = canvas.layout;
 
-    glcdSetXY(0, 0);
+    const int8_t th = 1;
+    const int16_t yMid = lt->rect.h / 2;
+    const int16_t xMid = lt->rect.w / 2;
+
+    ChessClock *chess = chessGet();
+
+    if (clear) {
+        glcdDrawRect(0, yMid - th, lt->rect.w, 2 * th, LCD_COLOR_AQUA);
+        glcdDrawRect(xMid - th, yMid + th, 2 * th, yMid - th, LCD_COLOR_AQUA);
+    }
+
+    uint16_t color = canvas.pal->bg;
+
+    if (chess->gameMask != drawData.gameMask) {
+        color = canvas.pal->bg;
+        if (chess->gameMask & (1 << CHESS_WHITE)) {
+            color = canvas.pal->fg;
+        }
+        glcdDrawRect(0, yMid + th, xMid - th, yMid - th, color);
+
+        color = canvas.pal->bg;
+        if (chess->gameMask & (1 << CHESS_BLACK)) {
+            color = canvas.pal->fg;
+        }
+        glcdDrawRect(xMid + th, yMid + th, xMid - th, yMid - th, color);
+    }
+    drawData.gameMask = chess->gameMask;
+
+    // Defaults
+    glcdSetFontColor(canvas.pal->fg);
+    glcdSetFontBgColor(canvas.pal->bg);
+
+    // Total time
+    glcdSetXY(xMid, 0);
+    glcdSetFontAlign(GLCD_ALIGN_CENTER);
     glcdSetFont(lt->chess.gameTotalFont);
     drawGameTime(clear, CHESS_TIME_TOTAL);
 
-    glcdSetXY(0, lt->rect.h / 2);
+    // Defaults
+    glcdSetFontColor(canvas.pal->fg);
+    glcdSetFontBgColor(canvas.pal->bg);
+
+    // White
+    if (chess->gameMask & (1 << CHESS_WHITE)) {
+        glcdSetFontColor(canvas.pal->bg);
+        glcdSetFontBgColor(canvas.pal->fg);
+    }
+    glcdSetXY(xMid / 2, yMid + 8);
     glcdSetFont(lt->chess.gameTimFont);
+    glcdSetFontAlign(GLCD_ALIGN_CENTER);
     drawGameTime(clear, CHESS_TIM_GAME_WHITE);
 
-    glcdSetXY(lt->rect.w / 2, lt->rect.h / 2);
+    // Defaults
+    glcdSetFontColor(canvas.pal->fg);
+    glcdSetFontBgColor(canvas.pal->bg);
+
+    // Black
+    if (chess->gameMask & (1 << CHESS_BLACK)) {
+        glcdSetFontColor(canvas.pal->bg);
+        glcdSetFontBgColor(canvas.pal->fg);
+    }
+    glcdSetXY(xMid + xMid / 2, yMid + 8);
     glcdSetFont(lt->chess.gameTimFont);
+    glcdSetFontAlign(GLCD_ALIGN_CENTER);
     drawGameTime(clear, CHESS_TIM_GAME_BLACK);
 }

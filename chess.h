@@ -40,6 +40,8 @@ typedef struct {
     int32_t gameTimerInitValue;
     int32_t moveTimeInitValue;
     ChessTim tim[CHESS_TIM_END];
+    uint8_t gameMask;
+    bool gameFinished;
 } ChessClock;
 
 void chessInit(void);

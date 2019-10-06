@@ -2,6 +2,7 @@
 
 #include "hwlibs.h"
 
+#include "chess.h"
 #include "display/dispdrv.h"
 #include "input.h"
 #include "pins.h"
@@ -59,6 +60,7 @@ void SysTick_Handler(void)
     dispdrvBusIRQ();
     inputPoll();
     swTimUpdate();
+    swTimeChessUpdate();
 
     sysTimer++;
 }

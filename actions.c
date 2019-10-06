@@ -66,10 +66,6 @@ static void actionGetTimers(void)
 {
     if (swTimGet(SW_TIM_DISPLAY) == 0) {
         actionSet(ACTION_DISP_EXPIRED, 0);
-    } else if (swTimGet(SW_TIM_TIME_WHITE) == 0) {
-
-    } else if (swTimGet(SW_TIM_TIME_BLACK) == 0) {
-
     }
 }
 
@@ -317,7 +313,7 @@ void actionHandle(bool visible)
     if (action.visible) {
         screenSetMode(action.screen);
         if (action.timeout > 0) {
-            swTimSet(SW_TIM_DISPLAY, action.timeout, true);
+            swTimSet(SW_TIM_DISPLAY, action.timeout);
         }
     }
 }

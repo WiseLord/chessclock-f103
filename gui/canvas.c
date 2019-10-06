@@ -1,6 +1,7 @@
 #include "canvas.h"
 #include <string.h>
 
+#include "../chess.h"
 #include "../menu.h"
 #include "../settings.h"
 #include "../swtimers.h"
@@ -188,12 +189,12 @@ void canvasShowMenu(bool clear)
     }
 }
 
-static void canvasShowTimer(bool clear, SwTimer timer)
+static void canvasShowTimer(bool clear, ChessColor color)
 {
     const Layout *lt = canvas.layout;
 
     RTC_type rtc;
-    int32_t value = swTimGet(timer);
+    int32_t value = chessTimGet(CHESS_TIM_GAME_WHITE + color);
 
     if (value < 0) {
         rtc.hour = -1;
@@ -215,7 +216,7 @@ static void canvasShowTimer(bool clear, SwTimer timer)
     int16_t timeLen = 6 * digW + 15 * ltspW;    // 6 digits HHMMSS + 13 letter spaces + 2 ':'
     int16_t timeX = (lt->rect.w - timeLen) / 2;
 
-    if (timer == SW_TIM_TIME_WHITE) {
+    if (color == CHESS_WHITE) {
         glcdSetXY(timeX, lt->time.timeW);
     } else {
         glcdSetXY(timeX, lt->time.timeB);
@@ -240,6 +241,6 @@ static void canvasShowTimer(bool clear, SwTimer timer)
 void canvasShowChess(bool clear)
 {
     clear = true;
-    canvasShowTimer(clear, SW_TIM_TIME_WHITE);
-    canvasShowTimer(clear, SW_TIM_TIME_BLACK);
+    canvasShowTimer(clear, CHESS_WHITE);
+    canvasShowTimer(clear, CHESS_BLACK);
 }

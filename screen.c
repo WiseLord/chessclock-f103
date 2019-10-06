@@ -76,7 +76,7 @@ void screenShow(bool clear)
     }
 
     if (swTimGet(SW_TIM_INPUT_POLL) == 0) {
-        swTimSet(SW_TIM_INPUT_POLL, 100, true);
+        swTimSet(SW_TIM_INPUT_POLL, 100);
     }
 
     if (clear) {

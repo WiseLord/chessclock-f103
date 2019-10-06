@@ -21,11 +21,30 @@ typedef struct {
     int32_t moveTime;
 } ChessClock;
 
+typedef uint8_t ChessTimer;
+enum {
+    CHESS_TIM_GAME_WHITE,
+    CHESS_TIM_GAME_BLACK,
+    CHESS_TIM_MOVE_WHITE,
+    CHESS_TIM_MOVE_BLACK,
+
+    CHESS_TIM_END,
+};
+
+typedef struct {
+    int32_t value;
+    bool enabled;
+} ChessTimer_type;
+
 void chessInit(void);
 void chessActivate(ChessColor color);
 bool chessIsRunning(void);
+void swTimeChessUpdate(void);
+
+void chessTimSet(ChessTimer timer, int32_t value, bool enable);
 
 ChessClock *chessGet(void);
+int32_t chessTimGet(ChessTimer timer);
 
 #ifdef __cplusplus
 }

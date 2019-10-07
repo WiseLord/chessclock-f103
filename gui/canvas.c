@@ -178,12 +178,11 @@ static void timToStr(int32_t time, char *str)
     strcpy(str, buf);
 }
 
-static void drawGameTime(bool clear, ChessTimer tim)
+static void drawGameTime(bool clear, ChessTimer tim, int32_t value)
 {
     (void)clear;
 
-    int32_t gameTim = chessTimGet(tim);
-    timToStr(gameTim, drawData.tim[tim].str);
+    timToStr(value, drawData.tim[tim].str);
     glcdWriteString(drawData.tim[tim].str);
 }
 
@@ -220,6 +219,8 @@ void canvasShowChess(bool clear)
     }
     drawData.gameMask = chess->gameMask;
 
+    int32_t gameTim;
+
     // Defaults
     glcdSetFontColor(canvas.pal->fg);
     glcdSetFontBgColor(canvas.pal->bg);
@@ -228,7 +229,8 @@ void canvasShowChess(bool clear)
     glcdSetXY(xMid, 16);
     glcdSetFontAlign(GLCD_ALIGN_CENTER);
     glcdSetFont(lt->chess.gameTotalFont);
-    drawGameTime(clear, CHESS_TIME_TOTAL);
+    gameTim = chessTimGet(CHESS_TIME_TOTAL);
+    drawGameTime(clear, CHESS_TIME_TOTAL, gameTim);
 
     // Defaults
     glcdSetFontColor(canvas.pal->fg);
@@ -239,10 +241,21 @@ void canvasShowChess(bool clear)
         glcdSetFontColor(canvas.pal->bg);
         glcdSetFontBgColor(canvas.pal->fg);
     }
-    glcdSetXY(xMid / 2, yMid + 28);
+    glcdSetXY(xMid / 2, yMid + 4);
     glcdSetFont(lt->chess.gameTimFont);
     glcdSetFontAlign(GLCD_ALIGN_CENTER);
-    drawGameTime(clear, CHESS_TIM_GAME_WHITE);
+    gameTim = chessTimGet(CHESS_TIM_GAME_WHITE);
+    drawGameTime(clear, CHESS_TIM_GAME_WHITE, gameTim);
+
+    glcdSetXY(xMid / 2, yMid + 70);
+    glcdSetFont(lt->chess.moveTimFont);
+    glcdSetFontAlign(GLCD_ALIGN_CENTER);
+    if (chess->tim[CHESS_TIM_GAME_WHITE].enabled) {
+        gameTim = chessTimGet(CHESS_TIM_MOVE);
+    } else {
+        gameTim = 0;
+    }
+    drawGameTime(clear, CHESS_TIM_MOVE, gameTim);
 
     // Defaults
     glcdSetFontColor(canvas.pal->fg);
@@ -253,8 +266,19 @@ void canvasShowChess(bool clear)
         glcdSetFontColor(canvas.pal->bg);
         glcdSetFontBgColor(canvas.pal->fg);
     }
-    glcdSetXY(xMid + xMid / 2, yMid + 28);
+    glcdSetXY(xMid + xMid / 2, yMid + 4);
     glcdSetFont(lt->chess.gameTimFont);
     glcdSetFontAlign(GLCD_ALIGN_CENTER);
-    drawGameTime(clear, CHESS_TIM_GAME_BLACK);
+    gameTim = chessTimGet(CHESS_TIM_GAME_BLACK);
+    drawGameTime(clear, CHESS_TIM_GAME_BLACK, gameTim);
+
+    glcdSetXY(xMid + xMid / 2, yMid + 70);
+    glcdSetFont(lt->chess.moveTimFont);
+    glcdSetFontAlign(GLCD_ALIGN_CENTER);
+    if (chess->tim[CHESS_TIM_GAME_BLACK].enabled) {
+        gameTim = chessTimGet(CHESS_TIM_MOVE);
+    } else {
+        gameTim = 0;
+    }
+    drawGameTime(clear, CHESS_TIM_MOVE, gameTim);
 }

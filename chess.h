@@ -21,25 +21,21 @@ enum {
     CHESS_TIM_GAME_WHITE,
     CHESS_TIM_GAME_BLACK,
 
-    CHESS_TIM_MOVE_WHITE,
-    CHESS_TIM_MOVE_BLACK,
-
     CHESS_TIM_COLOR_END,
 
     CHESS_TIME_TOTAL = CHESS_TIM_COLOR_END,
+    CHESS_TIM_MOVE,
 
     CHESS_TIM_END,
 };
 
 typedef struct {
-    int32_t value;
-    bool enabled;
-} ChessTim;
-
-typedef struct {
     int32_t gameTimerInitValue;
-    int32_t moveTimeInitValue;
-    ChessTim tim[CHESS_TIM_END];
+    int32_t moveTimerInitValue;
+    struct {
+        int32_t value;
+        bool enabled;
+    } tim[CHESS_TIM_END];
     uint8_t gameMask;
     bool gameFinished;
 } ChessClock;

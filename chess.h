@@ -8,46 +8,34 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef uint8_t ChessColor;
+typedef int8_t ChessSide;
 enum {
-    CHESS_WHITE = 0,
-    CHESS_BLACK,
+    CHESS_INACTIVE = -1,
+
+    CHESS_LEFT = 0,
+    CHESS_RIGHT,
 
     CHESS_END,
 };
 
-typedef uint8_t ChessTimer;
-enum {
-    CHESS_TIM_GAME_WHITE,
-    CHESS_TIM_GAME_BLACK,
-
-    CHESS_TIM_COLOR_END,
-
-    CHESS_TIME_TOTAL = CHESS_TIM_COLOR_END,
-    CHESS_TIM_MOVE,
-
-    CHESS_TIM_END,
-};
-
 typedef struct {
-    int32_t gameTimerInitValue;
-    int32_t moveTimerInitValue;
-    struct {
-        int32_t value;
-        bool enabled;
-    } tim[CHESS_TIM_END];
-    uint8_t gameMask;
-    bool gameFinished;
+    int32_t gameTimeInitValue;
+    int32_t moveTimeInitValue;
+
+    int32_t tim[CHESS_END];
+    int32_t gameTime;
+    int32_t moveTime;
+    ChessSide active;
+    ChessSide firstMove;
+    bool gameEnd;
 } ChessClock;
 
 void chessInit(void);
-void chessActivate(ChessColor color);
-void chessPause(void);
+ChessClock *chessGet(void);
+
+void chessSetMove(ChessSide color);
 bool chessIsRunning(void);
 void swTimeChessUpdate(void);
-
-ChessClock *chessGet(void);
-int32_t chessTimGet(ChessTimer timer);
 
 #ifdef __cplusplus
 }

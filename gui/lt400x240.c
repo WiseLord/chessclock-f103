@@ -6,8 +6,8 @@ static const Layout lt400x240 = {
     .rect.w = 400,
     .rect.h = 240,
 
-    .chess.gameTotalFont = &fontterminusdig80,
-    .chess.gameTimFont = &fontterminusdig58,
+    .chess.gameTotalFont = &fontterminusdig64,
+    .chess.gameTimFont = &fontterminusdig80,
     .chess.moveTimFont = &fontterminusdig40,
 
     .menu.headFont = &fontterminus28b,

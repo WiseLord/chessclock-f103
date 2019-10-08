@@ -99,7 +99,7 @@ static void actionRemapBtnShort(void)
             actionSet(ACTION_NAVIGATE, CMD_NAV_OK);
         } else {
             if (chessIsRunning()) {
-                chessPause();
+                chessSetMove(CHESS_INACTIVE);
             } else {
                 chessInit();
             }
@@ -158,12 +158,12 @@ static void actionRemapBtnInstant(void)
     switch (action.value) {
     case BTN_D0:
         if (scrMode == SCREEN_CHESS) {
-            chessActivate(CHESS_WHITE);
+            chessSetMove(CHESS_LEFT);
         }
         break;
     case BTN_D1:
         if (scrMode == SCREEN_CHESS) {
-            chessActivate(CHESS_BLACK);
+            chessSetMove(CHESS_RIGHT);
         }
         break;
     case BTN_D2:

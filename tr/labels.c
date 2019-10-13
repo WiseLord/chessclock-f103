@@ -22,6 +22,11 @@ static const char *const labels_default[LABEL_END] = {
     [LABEL_PAL_MODE + PAL_AQUA]         = "Aqua",
     [LABEL_PAL_MODE + PAL_FIRE]         = "Fire",
 
+    [LABEL_MOVE_TYPE + MOVE_TYPE_NONE]      = "None",
+    [LABEL_MOVE_TYPE + MOVE_TYPE_DELAY]     = "Delay",
+    [LABEL_MOVE_TYPE + MOVE_TYPE_BRONSTEIN] = "Bronstein",
+    [LABEL_MOVE_TYPE + MOVE_TYPE_FISCHER]   = "Fischer",
+
     // NOTE: Keep in sync with MenuIdx in menu.h
     [LABEL_MENU + MENU_NULL]            = "Up menu",
 
@@ -33,6 +38,7 @@ static const char *const labels_default[LABEL_END] = {
 
     [LABEL_MENU + MENU_CHESS_GAME_H]    = "Hours for game",
     [LABEL_MENU + MENU_CHESS_GAME_M]    = "Minutes for game",
+    [LABEL_MENU + MENU_CHESS_MOVE_TYPE] = "Game type",
     [LABEL_MENU + MENU_CHESS_MOVE_S]    = "Seconds for move",
 
     [LABEL_MENU + MENU_SYSTEM_LANG]     = "Language",

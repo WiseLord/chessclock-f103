@@ -34,6 +34,7 @@ static const MenuItem menuItems[MENU_END] = {
 
     [MENU_CHESS_GAME_H]     = {MENU_SETUP_CHESS,        MENU_TYPE_NUMBER,   PARAM_CHESS_GAME_H},
     [MENU_CHESS_GAME_M]     = {MENU_SETUP_CHESS,        MENU_TYPE_NUMBER,   PARAM_CHESS_GAME_M},
+    [MENU_CHESS_MOVE_TYPE]  = {MENU_SETUP_CHESS,        MENU_TYPE_ENUM,     PARAM_CHESS_MOVE_TYPE},
     [MENU_CHESS_MOVE_S]     = {MENU_SETUP_CHESS,        MENU_TYPE_NUMBER,   PARAM_CHESS_MOVE_S},
 
     [MENU_DISPLAY_ROTATE]   = {MENU_SETUP_DISPLAY,      MENU_TYPE_BOOL,     PARAM_DISPLAY_ROTATE},
@@ -74,6 +75,10 @@ static int16_t menuGetValue(MenuIdx index)
         ret = inputGetEncRes();
         break;
 
+    case MENU_CHESS_MOVE_TYPE:
+        ret = chessGet()->moveType;
+        break;
+
     case MENU_DISPLAY_ROTATE:
         ret = glcdGetRotate();
         break;
@@ -97,6 +102,10 @@ static void menuStoreCurrentValue(void)
         break;
     case MENU_SYSTEM_ENC_RES:
         inputSetEncRes((int8_t)menu.value);
+        break;
+
+    case MENU_CHESS_MOVE_TYPE:
+        chessGet()->moveType = (ChessMoveType)menu.value;
         break;
 
     case MENU_DISPLAY_ROTATE:
@@ -142,6 +151,13 @@ static void menuValueChange(int8_t diff)
             menu.value = ENC_RES_MAX;
         if (menu.value < ENC_RES_MIN)
             menu.value = ENC_RES_MIN;
+        break;
+
+    case MENU_CHESS_MOVE_TYPE:
+        if (menu.value > MOVE_TYPE_END - 1)
+            menu.value = MOVE_TYPE_END - 1;
+        if (menu.value < MOVE_TYPE_NONE)
+            menu.value = MOVE_TYPE_NONE;
         break;
 
     case MENU_DISPLAY_PALETTE:
@@ -320,6 +336,10 @@ const char *menuGetValueStr(MenuIdx index)
     switch (index) {
     case MENU_SYSTEM_LANG:
         ret = labelsGetLangName((Lang)value);
+        break;
+
+    case MENU_CHESS_MOVE_TYPE:
+        ret = labelsGet((Label)(LABEL_MOVE_TYPE + value));
         break;
 
     case MENU_DISPLAY_PALETTE:

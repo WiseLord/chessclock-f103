@@ -8,6 +8,11 @@ const char *const labels_ru[LABEL_END] = {
     [LABEL_PAL_MODE + PAL_AQUA]         = "Вода",
     [LABEL_PAL_MODE + PAL_FIRE]         = "Огонь",
 
+    [LABEL_MOVE_TYPE + MOVE_TYPE_NONE]      = "Нет",
+    [LABEL_MOVE_TYPE + MOVE_TYPE_DELAY]     = "Пауза",
+    [LABEL_MOVE_TYPE + MOVE_TYPE_BRONSTEIN] = "Бронштейн",
+    [LABEL_MOVE_TYPE + MOVE_TYPE_FISCHER]   = "Фишер",
+
     // NOTE: Keep in sync with MenuIdx in menu.h
     [LABEL_MENU + MENU_NULL]            = "Назад",
 

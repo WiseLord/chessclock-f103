@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+#include "../chess.h"
 #include "../gui/palette.h"
 #include "../menu.h"
 #include "../pins.h"
@@ -26,8 +27,11 @@ typedef enum {
     LABEL_PAL_MODE,
     LABEL_PAL_MODE_END = LABEL_PAL_MODE + (PAL_END - PAL_DEFAULT),
 
+    LABEL_MOVE_TYPE = LABEL_PAL_MODE_END,
+    LABEL_MOVE_TYPE_END = LABEL_MOVE_TYPE + (MOVE_TYPE_END - MOVE_TYPE_NONE),
+
     // Menu
-    LABEL_MENU = LABEL_PAL_MODE_END,
+    LABEL_MENU = LABEL_MOVE_TYPE_END,
     LABEL_MENU_END = LABEL_MENU + (MENU_END - MENU_NULL),
 
     LABEL_END = LABEL_MENU_END,

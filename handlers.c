@@ -60,7 +60,7 @@ void SysTick_Handler(void)
     dispdrvBusIRQ();
     inputPoll();
     swTimUpdate();
-    swTimeChessUpdate();
+    chessUpdateTimers();
 
     sysTimer++;
 }

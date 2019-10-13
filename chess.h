@@ -18,6 +18,17 @@ enum {
     CHESS_END,
 };
 
+typedef int8_t ChessMoveType;
+enum {
+    MOVE_TYPE_NONE = 0,
+
+    MOVE_TYPE_DELAY,
+    MOVE_TYPE_BRONSTEIN,
+    MOVE_TYPE_FISCHER,
+
+    MOVE_TYPE_END,
+};
+
 typedef struct {
     int32_t gameTimeInitValue;
     int32_t moveTimeInitValue;
@@ -25,6 +36,9 @@ typedef struct {
     int32_t tim[CHESS_END];
     int32_t gameTime;
     int32_t moveTime;
+
+    ChessMoveType moveType;
+
     ChessSide active;
     ChessSide firstMove;
     bool gameEnd;
@@ -35,7 +49,7 @@ ChessClock *chessGet(void);
 
 void chessSetMove(ChessSide color);
 bool chessIsRunning(void);
-void swTimeChessUpdate(void);
+void chessUpdateTimers(void);
 
 #ifdef __cplusplus
 }

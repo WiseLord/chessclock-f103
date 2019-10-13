@@ -18,9 +18,10 @@ static const EE_Map eeMap[] = {
     [PARAM_DISPLAY_ROTATE]  =   {0x42,  false},
     [PARAM_DISPLAY_PALETTE] =   {0x44,  PAL_DEFAULT},
 
-    [PARAM_CHESS_GAME_H]     =   {0x60,  0},
-    [PARAM_CHESS_GAME_M]   =   {0x61,  5},
-    [PARAM_CHESS_MOVE_S]   =   {0x62,  0},
+    [PARAM_CHESS_GAME_H]    =   {0x60,  0},
+    [PARAM_CHESS_GAME_M]    =   {0x61,  5},
+    [PARAM_CHESS_MOVE_S]    =   {0x62,  0},
+    [PARAM_CHESS_MOVE_TYPE] =   {0x63,  MOVE_TYPE_NONE},
 
     [PARAM_SYSTEM_LANG]     =   {0x70,  LANG_DEFAULT},
     [PARAM_SYSTEM_ENC_RES]  =   {0x74,  4},

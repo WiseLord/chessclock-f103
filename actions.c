@@ -135,6 +135,7 @@ static void actionRemapBtnLong(void)
     case BTN_D5:
         if (scrMode == SCREEN_MENU) {
             actionDispExpired(scrMode);
+            chessInit();
         } else {
             actionSet(ACTION_MENU_SELECT, MENU_SETUP_CHESS);
         }

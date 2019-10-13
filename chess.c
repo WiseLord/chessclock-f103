@@ -21,6 +21,9 @@ void chessInit(void)
     }
     chess.gameTime = 0;
     chess.moveTime = 0;
+
+    chess.moveType = (ChessMoveType)(settingsRead(PARAM_CHESS_MOVE_TYPE));
+
     chess.active = CHESS_INACTIVE;
     chess.firstMove = CHESS_INACTIVE;
     chess.gameEnd = false;
@@ -29,6 +32,36 @@ void chessInit(void)
 ChessClock *chessGet(void)
 {
     return &chess;
+}
+
+static void chessChangeSide()
+{
+    int32_t inc = 0;
+
+    switch (chess.moveType) {
+    case MOVE_TYPE_DELAY:
+        chess.moveTime = chess.moveTimeInitValue;
+        break;
+    case MOVE_TYPE_BRONSTEIN:
+        if (chess.active >= 0) {
+            inc = chess.moveTimeInitValue;
+            if (chess.moveTime > 0) {
+                inc -= chess.moveTime;
+            }
+        }
+        chess.moveTime = chess.moveTimeInitValue;
+        break;
+    case MOVE_TYPE_FISCHER:
+        if (chess.active >= 0) {
+            inc = chess.moveTimeInitValue;
+        }
+        chess.moveTime = chess.moveTimeInitValue;
+        break;
+    default:
+        break;
+    }
+
+    chess.tim[chess.active] += inc;
 }
 
 void chessSetMove(ChessSide side)
@@ -43,10 +76,10 @@ void chessSetMove(ChessSide side)
         return;
     }
 
-    chess.active = side;
     if (side >= 0) {
-        chess.moveTime = chess.moveTimeInitValue;
+        chessChangeSide();
     }
+    chess.active = side;
 
     // First move color
     if (chess.firstMove == CHESS_INACTIVE) {
@@ -59,7 +92,7 @@ bool chessIsRunning(void)
     return (chess.active >= 0);
 }
 
-void swTimeChessUpdate(void)
+void chessUpdateTimers(void)
 {
     // If inactive, do nothing
     if (chess.active < 0) {
@@ -70,9 +103,10 @@ void swTimeChessUpdate(void)
         chess.moveTime--;
     }
 
-    if (chess.moveTime == 0) {
-        chess.tim[chess.active]--;
-        if (chess.tim[chess.active] == 0) {
+    if (chess.moveType == MOVE_TYPE_BRONSTEIN ||
+        chess.moveType == MOVE_TYPE_FISCHER ||
+        chess.moveTime == 0) {
+        if (--chess.tim[chess.active] == 0) {
             chessSetMove(CHESS_INACTIVE);
             chess.gameEnd = true;
         }

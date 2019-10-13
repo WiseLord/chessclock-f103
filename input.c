@@ -10,7 +10,7 @@ static int8_t encRes = 0;
 
 void inputInit(void)
 {
-    encRes = (int8_t)settingsRead(PARAM_SYSTEM_ENC_RES);
+    encRes = (int8_t)(settingsRead(PARAM_SYSTEM_ENC_RES));
 }
 
 void inputSetEncRes(int8_t value)

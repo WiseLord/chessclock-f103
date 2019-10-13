@@ -6,11 +6,6 @@ static const Layout lt220x176 = {
     .rect.w = 220,
     .rect.h = 176,
 
-    .time.hmsFont = &fontterminusdig58,
-    .time.dmyFont = &fontterminusdig40,
-    .time.wdFont = &fontterminus32,
-    .time.timeW = 10,
-    .time.timeB = 98,
 
     .menu.headFont = &fontterminus20b,
     .menu.menuFont = &fontterminus18,

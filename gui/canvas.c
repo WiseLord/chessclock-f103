@@ -210,16 +210,7 @@ static void timToStr2(int32_t time, char *str)
 }
 
 
-
-static void drawGameTime(bool clear, TimStr *tim, int32_t value)
-{
-    (void)clear;
-
-    timToStr(value, tim->str);
-    glcdWriteString(tim->str);
-}
-
-static void drawTotalTime(bool clear)
+static void drawTotalTime(bool clear, int16_t yPos)
 {
     const Layout *lt = canvas.layout;
 
@@ -228,10 +219,12 @@ static void drawTotalTime(bool clear)
     ChessClock *chess = chessGet();
 
     // Total time
-    glcdSetXY(xMid, 4);
+    glcdSetXY(xMid, yPos);
     glcdSetFont(lt->chess.gameTotalFont);
     glcdSetFontAlign(GLCD_ALIGN_CENTER);
-    drawGameTime(clear, &drawData.gameTime, chess->gameTime);
+
+    timToStr(chess->gameTime, drawData.gameTime.str);
+    glcdWriteString(drawData.gameTime.str);
 }
 
 static void drawMoveTime(bool clear)
@@ -252,19 +245,18 @@ static void drawMoveTime(bool clear)
     glcdWriteString(drawData.moveTime.str);
 }
 
-static void drawSide(bool clear, ChessSide side)
+static void drawSide(bool clear, ChessSide side, int16_t yPos)
 {
     (void)clear;
 
     const Layout *lt = canvas.layout;
 
-    const int16_t yMid = lt->rect.h / 2;
     const int16_t xMid = lt->rect.w / 2;
     const int16_t xOft = (side == CHESS_LEFT ? 0 : xMid);
 
     ChessClock *chess = chessGet();
 
-    glcdSetXY(xOft + xMid / 2, yMid + 16);
+    glcdSetXY(xOft + xMid / 2, yPos);
     glcdSetFont(lt->chess.gameTimFont);
     glcdSetFontAlign(GLCD_ALIGN_CENTER);
 
@@ -289,8 +281,8 @@ void canvasShowChess(bool clear)
     glcdSetFontColor(canvas.pal->fg);
     glcdSetFontBgColor(canvas.pal->bg);
 
-    drawTotalTime(clear);
+    drawTotalTime(clear, 4);
     drawMoveTime(clear);
-    drawSide(clear, CHESS_LEFT);
-    drawSide(clear, CHESS_RIGHT);
+    drawSide(clear, CHESS_LEFT, yMid + 16);
+    drawSide(clear, CHESS_RIGHT, yMid + 16);
 }

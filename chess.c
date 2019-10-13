@@ -7,12 +7,13 @@ static ChessClock chess;
 
 void chessInit(void)
 {
-    int16_t h = settingsGet(PARAM_CHESS_HOURS);
-    int16_t m = settingsGet(PARAM_CHESS_MINUTES);
-    int16_t s = settingsGet(PARAM_CHESS_SECONDS);
+    int16_t gh = settingsGet(PARAM_CHESS_GAME_H);
+    int16_t gm = settingsGet(PARAM_CHESS_GAME_M);
+    int16_t ms = settingsGet(PARAM_CHESS_MOVE_S);
 
-    chess.gameTimeInitValue = ((h * 60 + m) * 60 + s) * 1000;
-    chess.moveTimeInitValue = 5000; // TODO: read from settings
+    chess.gameTimeInitValue = ((gh * 60 + gm) * 60) * 1000;
+
+    chess.moveTimeInitValue = ms * 1000;
 
     // Reset to default values
     for (ChessSide color = CHESS_LEFT; color < CHESS_END; color++) {

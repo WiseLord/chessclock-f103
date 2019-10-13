@@ -32,9 +32,9 @@ static const MenuItem menuItems[MENU_END] = {
     [MENU_SYSTEM_LANG]      = {MENU_SETUP_SYSTEM,       MENU_TYPE_ENUM,     PARAM_SYSTEM_LANG},
     [MENU_SYSTEM_ENC_RES]   = {MENU_SETUP_SYSTEM,       MENU_TYPE_NUMBER,   PARAM_SYSTEM_ENC_RES},
 
-    [MENU_CHESS_HOURS]       = {MENU_SETUP_CHESS,       MENU_TYPE_NUMBER,   PARAM_CHESS_HOURS},
-    [MENU_CHESS_MINUTES]     = {MENU_SETUP_CHESS,       MENU_TYPE_NUMBER,   PARAM_CHESS_MINUTES},
-    [MENU_CHESS_SECONDS]     = {MENU_SETUP_CHESS,       MENU_TYPE_NUMBER,   PARAM_CHESS_SECONDS},
+    [MENU_CHESS_GAME_H]     = {MENU_SETUP_CHESS,        MENU_TYPE_NUMBER,   PARAM_CHESS_GAME_H},
+    [MENU_CHESS_GAME_M]     = {MENU_SETUP_CHESS,        MENU_TYPE_NUMBER,   PARAM_CHESS_GAME_M},
+    [MENU_CHESS_MOVE_S]     = {MENU_SETUP_CHESS,        MENU_TYPE_NUMBER,   PARAM_CHESS_MOVE_S},
 
     [MENU_DISPLAY_ROTATE]   = {MENU_SETUP_DISPLAY,      MENU_TYPE_BOOL,     PARAM_DISPLAY_ROTATE},
     [MENU_DISPLAY_PALETTE]  = {MENU_SETUP_DISPLAY,      MENU_TYPE_ENUM,     PARAM_DISPLAY_PALETTE},
@@ -151,14 +151,14 @@ static void menuValueChange(int8_t diff)
             menu.value = PAL_DEFAULT;
         break;
 
-    case MENU_CHESS_HOURS:
+    case MENU_CHESS_GAME_H:
         if (menu.value > 23)
             menu.value = 0;
         if (menu.value < 0)
             menu.value = 23;
         break;
-    case MENU_CHESS_MINUTES:
-    case MENU_CHESS_SECONDS:
+    case MENU_CHESS_GAME_M:
+    case MENU_CHESS_MOVE_S:
         if (menu.value > 59)
             menu.value = 0;
         if (menu.value < 0)

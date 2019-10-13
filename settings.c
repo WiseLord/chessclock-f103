@@ -18,9 +18,9 @@ static const EE_Map eeMap[] = {
     [PARAM_DISPLAY_ROTATE]  =   {0x42,  false},
     [PARAM_DISPLAY_PALETTE] =   {0x44,  PAL_DEFAULT},
 
-    [PARAM_CHESS_HOURS]     =   {0x60,  0},
-    [PARAM_CHESS_MINUTES]   =   {0x61,  5},
-    [PARAM_CHESS_SECONDS]   =   {0x62,  0},
+    [PARAM_CHESS_GAME_H]     =   {0x60,  0},
+    [PARAM_CHESS_GAME_M]   =   {0x61,  5},
+    [PARAM_CHESS_MOVE_S]   =   {0x62,  0},
 
     [PARAM_SYSTEM_LANG]     =   {0x70,  LANG_DEFAULT},
     [PARAM_SYSTEM_ENC_RES]  =   {0x74,  4},
@@ -30,9 +30,9 @@ void settingsInit(void)
 {
     eeInit();
 
-    settingsSet(PARAM_CHESS_HOURS, settingsRead(PARAM_CHESS_HOURS));
-    settingsSet(PARAM_CHESS_MINUTES, settingsRead(PARAM_CHESS_MINUTES));
-    settingsSet(PARAM_CHESS_SECONDS, settingsRead(PARAM_CHESS_SECONDS));
+    settingsSet(PARAM_CHESS_GAME_H, settingsRead(PARAM_CHESS_GAME_H));
+    settingsSet(PARAM_CHESS_GAME_M, settingsRead(PARAM_CHESS_GAME_M));
+    settingsSet(PARAM_CHESS_MOVE_S, settingsRead(PARAM_CHESS_MOVE_S));
 }
 
 int16_t settingsGet(Param param)
@@ -40,13 +40,13 @@ int16_t settingsGet(Param param)
     int16_t ret = 0;
 
     switch (param) {
-    case PARAM_CHESS_HOURS:
+    case PARAM_CHESS_GAME_H:
         ret = chessGameH;
         break;
-    case PARAM_CHESS_MINUTES:
+    case PARAM_CHESS_GAME_M:
         ret = chessGameM;
         break;
-    case PARAM_CHESS_SECONDS:
+    case PARAM_CHESS_MOVE_S:
         ret = chessGameS;
         break;
     default:
@@ -59,13 +59,13 @@ int16_t settingsGet(Param param)
 void settingsSet(Param param, int16_t value)
 {
     switch (param) {
-    case PARAM_CHESS_HOURS:
+    case PARAM_CHESS_GAME_H:
         chessGameH = value;
         break;
-    case PARAM_CHESS_MINUTES:
+    case PARAM_CHESS_GAME_M:
         chessGameM = value;
         break;
-    case PARAM_CHESS_SECONDS:
+    case PARAM_CHESS_MOVE_S:
         chessGameS = value;
         break;
     default:

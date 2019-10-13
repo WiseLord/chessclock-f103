@@ -31,9 +31,9 @@ static const char *const labels_default[LABEL_END] = {
     [LABEL_MENU + MENU_SETUP_SYSTEM]    = "System",
     [LABEL_MENU + MENU_SETUP_DISPLAY]   = "Display",
 
-    [LABEL_MENU + MENU_CHESS_HOURS]     = "Hours",
-    [LABEL_MENU + MENU_CHESS_MINUTES]   = "Minutes",
-    [LABEL_MENU + MENU_CHESS_SECONDS]   = "Seconds",
+    [LABEL_MENU + MENU_CHESS_GAME_H]    = "Hours for game",
+    [LABEL_MENU + MENU_CHESS_GAME_M]    = "Minutes for game",
+    [LABEL_MENU + MENU_CHESS_MOVE_S]    = "Seconds for move",
 
     [LABEL_MENU + MENU_SYSTEM_LANG]     = "Language",
     [LABEL_MENU + MENU_SYSTEM_ENC_RES]  = "Encoder resolution",

@@ -17,9 +17,9 @@ const char *const labels_by[LABEL_END] = {
     [LABEL_MENU + MENU_SETUP_SYSTEM]    = "Сістэма",
     [LABEL_MENU + MENU_SETUP_DISPLAY]   = "Дысплэй",
 
-    [LABEL_MENU + MENU_CHESS_HOURS]      = "Гадзіны",
-    [LABEL_MENU + MENU_CHESS_MINUTES]    = "Хвіліны",
-    [LABEL_MENU + MENU_CHESS_SECONDS]    = "Секунды",
+    [LABEL_MENU + MENU_CHESS_GAME_H]    = "Гадзін на гульню",
+    [LABEL_MENU + MENU_CHESS_GAME_M]    = "Хвілін на гульню",
+    [LABEL_MENU + MENU_CHESS_MOVE_S]    = "Секунд на ход",
 
     [LABEL_MENU + MENU_SYSTEM_LANG]     = "Мова",
     [LABEL_MENU + MENU_SYSTEM_ENC_RES]  = "Вырашэнне энкодера",

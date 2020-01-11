@@ -6,6 +6,7 @@
 #include "display/dispdrv.h"
 #include "input.h"
 #include "pins.h"
+#include "screen.h"
 #include "swtimers.h"
 
 static int32_t sysTimer = 0;
@@ -57,7 +58,6 @@ void PendSV_Handler(void)
 
 void SysTick_Handler(void)
 {
-    dispdrvBusIRQ();
     inputPoll();
     swTimUpdate();
     chessUpdateTimers();
@@ -72,7 +72,7 @@ void TIM2_IRQHandler(void)
         LL_TIM_ClearFlag_UPDATE(TIM2);
 
         // Callbacks
-        dispdrvPwm();
+        screenPwm();
     }
 }
 

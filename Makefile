@@ -1,35 +1,28 @@
-PROJECT = chessclock_f103
+PROJECT = chessclock
+
+STM32_MCU = F103CB
 
 DISPLAY = ILI9341
 DISPVAR = SPI
 
-APROC_LIST = TDA7439 TDA731X PT232X TDA7418
-TUNER_LIST = RDA580X SI470X TEA5767
-FEATURE_LIST =
+DEBUG = 1
+OPT = -Os
 
-STM32_FAMILY = STM32F1
-STM32_GROUP  = $(STM32_FAMILY)03xB
-STM32_DEV    = $(STM32_FAMILY)03CB
-
-#DEBUG_FPS = YES
-#DEBUG_KARADIO = YES
 
 # Lowercase argument
 lc = $(shell echo $1 | tr '[:upper:]' '[:lower:]')
 
-TARGET = $(call lc, $(PROJECT)_$(DISPLAY)_$(DISPVAR))
-
-C_DEFS = -DUSE_FULL_LL_DRIVER -D$(STM32_GROUP) -D_$(STM32_FAMILY)
-
-ifneq (,$(filter $(DISPLAY), \
-  DISP24BIT    \
-))
-  C_DEFS += -D_COLOR_24BIT
+ifeq "$(STM32_MCU)" "F103CB"
+  STM32_FAMILY = STM32F1
+  STM32_GROUP  = $(STM32_FAMILY)03xB
 endif
 
-ifeq "$(DEBUG_KARADIO)" "YES"
-  C_DEFS += -D_DEBUG_KARADIO
-endif
+TARGET = $(call lc, $(PROJECT)_$(STM32_MCU)_$(DISPLAY)_$(DISPVAR))
+
+C_DEFS = -DUSE_FULL_LL_DRIVER -D$(STM32_GROUP) -D_$(STM32_MCU)
+
+#C_DEFS += -D_DISP_READ_ENABLED
+#C_DEFS += -D_DISP_RST_ENABLED
 
 C_SOURCES = main.c
 
@@ -39,7 +32,6 @@ C_SOURCES += debug.c
 C_SOURCES += eemul.c
 C_SOURCES += handlers.c
 C_SOURCES += input.c
-C_SOURCES += mem.c
 C_SOURCES += menu.c
 C_SOURCES += pins.c
 C_SOURCES += screen.c
@@ -127,7 +119,8 @@ C_SOURCES += $(wildcard gui/fonts/font*.c)
 C_SOURCES += $(wildcard gui/icons/icon*.c)
 C_SOURCES += $(wildcard gui/widget/*.c)
 
-C_INCLUDES += -Idisplay
+C_INCLUDES += \
+  -Idisplay
 
 C_SOURCES += \
   drivers/$(STM32_FAMILY)xx_HAL_Driver/Src/$(call lc, $(STM32_FAMILY))xx_ll_gpio.c \
@@ -150,23 +143,31 @@ ASM_SOURCES += \
 # Build directory
 BUILD_DIR = build
 
-DEBUG = 1
+ifeq "$(STM32_FAMILY)" "STM32F1"
+  CPU = -mcpu=cortex-m3
+  FPU =
+  FLOAT-ABI =
+endif
+
+ifeq "$(STM32_FAMILY)" "STM32F3"
+  CPU = -mcpu=cortex-m4
+  FPU = -mfpu=fpv4-sp-d16
+  FLOAT-ABI = -mfloat-abi=hard
+endif
 
 # Compiler
-FPU =
-FLOAT-ABI =
-MCU = -mcpu=cortex-m3 -mthumb $(FPU) $(FLOAT-ABI)
-OPT = -Os -fshort-enums -ffunction-sections -fdata-sections -ffreestanding
+MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
+OPT_FLAGS = $(OPT) -fshort-enums -ffunction-sections -fdata-sections -ffreestanding
 WARN = -Wall -Werror
-CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) $(WARN)
-ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) $(WARN)
+CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT_FLAGS) $(WARN)
+ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT_FLAGS) $(WARN)
 ifeq ($(DEBUG), 1)
 CFLAGS += -g -gdwarf-2
 endif
 # Dependency information
 CFLAGS += -MMD -MP -MT $(BUILD_DIR)/$(*F).o -MF $(BUILD_DIR)/$(*D)/$(*F).d
 
-LDSCRIPT = system/$(call lc, $(STM32_DEV))_flash.ld
+LDSCRIPT = system/$(call lc, STM32$(STM32_MCU))_flash.ld
 LIBS = -lc -lm -lnosys
 LIBDIR =
 LDFLAGS = $(MCU) -specs=nosys.specs -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
@@ -191,8 +192,6 @@ vpath %.s $(sort $(dir $(ASM_SOURCES)))
 
 ELF = $(BUILD_DIR)/$(TARGET).elf
 BIN = flash/$(TARGET).bin
-
-EE_BACKUP = backup/$(PROJECT)_eeprom.bin
 
 all: $(BIN) size
 
@@ -229,15 +228,6 @@ flash: $(BIN)
 .PHONY: erase
 erase:
 	$(OPENOCD) -f $(OPENOCD_CFG) -c "stm_erase" -c shutdown
-
-.PHONY: ee_backup
-ee_backup:
-	@mkdir -p backup
-	$(OPENOCD) -f $(OPENOCD_CFG) -c "stm_ee_read $(EE_BACKUP)" -c shutdown
-
-.PHONY: ee_flash
-ee_flash: $(EE_BACKUP)
-	$(OPENOCD) -f $(OPENOCD_CFG) -c "stm_ee_flash $(EE_BACKUP)" -c shutdown
 
 .PHONY: ee_erase
 ee_erase:

@@ -22,6 +22,7 @@ typedef struct {
     ScreenMode mode;
     ScreenMode def;
     Icon iconHint;
+    int8_t brightness;
 } Screen;
 
 void screenInit(void);
@@ -31,8 +32,12 @@ Screen *screenGet(void);
 void screenSetMode(ScreenMode value);
 ScreenMode screenGetMode(void);
 
+void screenSetBrightness(int8_t value);
+
 void screenToClear(void);
 void screenShow(bool clear);
+
+void screenPwm(void);
 
 #ifdef __cplusplus
 }

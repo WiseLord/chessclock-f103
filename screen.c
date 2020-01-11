@@ -60,6 +60,11 @@ ScreenMode screenGetMode()
     return screen.mode;
 }
 
+void screenSetBrightness(int8_t value)
+{
+    screen.brightness = value;
+}
+
 void screenToClear(void)
 {
     scrToClear = true;
@@ -92,5 +97,20 @@ void screenShow(bool clear)
         break;
     default:
         break;
+    }
+}
+
+void screenPwm(void)
+{
+    static int8_t br;
+
+    if (++br >= LCD_BR_MAX) {
+        br = 0;
+    }
+
+    if (br == screen.brightness) {
+        pinsSetBckl(false);
+    } else if (br == 0) {
+        pinsSetBckl(true);
     }
 }

@@ -3,8 +3,52 @@
 #include <stdbool.h>
 
 static volatile bool busBusy;
-static volatile int8_t brightness;
 static volatile uint8_t busData;
+
+#ifdef _DISP_FB
+
+typedef struct {
+    int16_t xMin;
+    int16_t yMin;
+    int16_t xMax;
+    int16_t yMax;
+    int16_t x;
+    int16_t y;
+} FbArea;
+
+static FbArea fbArea;
+
+__attribute__((always_inline))
+static inline void fbSetWindow(int16_t x, int16_t y, int16_t w, int16_t h)
+{
+    fbArea.xMin = x;
+    fbArea.yMin = y;
+    fbArea.xMax = x + w;
+    fbArea.yMax = y + h;
+    fbArea.x = x;
+    fbArea.y = y;
+}
+
+__attribute__((always_inline))
+static inline void fbSetPixel(int16_t x, int16_t y, color_t color)
+{
+    if (dispdrv.fbSetPixel) {
+        dispdrv.fbSetPixel(x, y, color);
+    }
+}
+
+__attribute__((always_inline))
+static inline void fbShiftPos()
+{
+    if (++fbArea.y >= fbArea.yMax) {
+        fbArea.y = fbArea.yMin;
+        if (++fbArea.x >= fbArea.xMax) {
+            fbArea.x = fbArea.xMin;
+        }
+    }
+}
+
+#endif // _DISP_FB
 
 __attribute__((always_inline))
 static inline void dispdrvSendByte(uint8_t data)
@@ -47,11 +91,11 @@ static inline void dispdrvBusIn(void)
 #if defined(_DISP_16BIT)
     WRITE_BYTE(DISP_DATA_HI, 0xFF);         // Set HIGH level on all data lines
     WRITE_BYTE(DISP_DATA_LO, 0xFF);
-#ifdef _STM32F1
+#ifdef STM32F1
     DISP_DATA_HI_Port->CRH = 0x88888888;
     DISP_DATA_LO_Port->CRL = 0x88888888;
 #endif
-#ifdef _STM32F3
+#ifdef STM32F3
     DISP_DATA_HI_Port->MODER &= 0x0000FFFF;
     DISP_DATA_LO_Port->MODER &= 0xFFFF0000;
 #endif
@@ -59,17 +103,17 @@ static inline void dispdrvBusIn(void)
     WRITE_BYTE(DISP_DATA, 0xFF);            // Set HIGH level on all data lines
 
 #if IS_GPIO_LO(DISP_DATA)
-#ifdef _STM32F1
+#ifdef STM32F1
     DISP_DATA_Port->CRL = 0x88888888;
 #endif
-#ifdef _STM32F3
+#ifdef STM32F3
     DISP_DATA_Port->MODER &= 0xFFFF0000;
 #endif
 #elif IS_GPIO_HI(DISP_DATA)
-#ifdef _STM32F1
+#ifdef STM32F1
     DISP_DATA_Port->CRH = 0x88888888;
 #endif
-#ifdef _STM32F3
+#ifdef STM32F3
     DISP_DATA_Port->MODER &= 0x0000FFFF;
 #endif
 #endif
@@ -85,11 +129,11 @@ static inline void dispdrvBusOut(void)
         busBusy = true;
     }
 #if defined(_DISP_16BIT)
-#ifdef _STM32F1
+#ifdef STM32F1
     DISP_DATA_HI_Port->CRH = 0x33333333;
     DISP_DATA_LO_Port->CRL = 0x33333333;
 #endif
-#ifdef _STM32F3
+#ifdef STM32F3
     DISP_DATA_HI_Port->MODER &= 0x0000FFFF;
     DISP_DATA_HI_Port->MODER |= 0x55550000;
     DISP_DATA_LO_Port->MODER &= 0xFFFF0000;
@@ -97,19 +141,19 @@ static inline void dispdrvBusOut(void)
 #endif
 #elif defined(_DISP_8BIT)
 #if IS_GPIO_LO(DISP_DATA)
-#ifdef _STM32F1
+#ifdef STM32F1
     DISP_DATA_Port->CRL = 0x33333333;
 #endif
-#ifdef _STM32F3
+#ifdef STM32F3
     DISP_DATA_Port->MODER &= 0xFFFF0000;
     DISP_DATA_Port->MODER |= 0x00005555;
 #endif
 #endif
 #if IS_GPIO_HI(DISP_DATA)
-#ifdef _STM32F1
+#ifdef STM32F1
     DISP_DATA_Port->CRH = 0x33333333;
 #endif
-#ifdef _STM32F3
+#ifdef STM32F3
     DISP_DATA_Port->MODER &= 0x0000FFFF;
     DISP_DATA_Port->MODER |= 0x55550000;
 #endif
@@ -166,12 +210,17 @@ static inline void dispdrvSendTriplet(uint16_t data)
 #endif
 
 __attribute__((always_inline))
-static inline void dispdrvSendColor(uint16_t data)
+static inline void dispdrvSendColor(color_t data)
 {
+#ifdef _DISP_FB
+    fbSetPixel(fbArea.x, fbArea.y, data);
+    fbShiftPos();
+#else
 #ifdef _COLOR_24BIT
     dispdrvSendTriplet(color);
 #else
     dispdrvSendWord(data);
+#endif
 #endif
 }
 
@@ -200,39 +249,15 @@ void dispdrvInit(void)
     dispdrvReset();
 
     dispdrv.init();
-
-    SET(DISP_BCKL);
-}
-
-void dispdrvPwm(void)
-{
-    static uint8_t br;
-
-    if (++br >= LCD_BR_MAX)
-        br = 0;
-
-    if (br == brightness) {
-        CLR(DISP_BCKL);
-    } else if (br == 0) {
-        SET(DISP_BCKL);
-    }
-}
-
-void dispdrvSetBrightness(int8_t value)
-{
-    brightness = value;
 }
 
 uint8_t dispdrvGetBus(void)
 {
-    return ~busData;
-}
-
-void dispdrvBusIRQ(void)
-{
     if (!busBusy) {
         busData = dispdrvReadBus();
     }
+
+    return busData;
 }
 
 void dispdrvSendData8(uint8_t data)
@@ -347,8 +372,23 @@ void dispdrvReadReg(uint16_t reg, uint16_t *args, uint8_t nArgs)
     SET(DISP_CS);
 }
 
-void dispdrvDrawPixel(int16_t x, int16_t y, uint16_t color)
+__attribute__((always_inline))
+static inline void dispdrvSetWindow(int16_t x, int16_t y, int16_t w, int16_t h)
 {
+#ifdef _DISP_FB
+    fbSetWindow(x, y, w, h);
+#else
+    if (dispdrv.setWindow) {
+        dispdrv.setWindow(x, y, w, h);
+    }
+#endif
+}
+
+void dispdrvDrawPixel(int16_t x, int16_t y, color_t color)
+{
+#ifdef _DISP_FB
+    fbSetPixel(x, y, color);
+#else
     CLR(DISP_CS);
 
     dispdrv.setWindow(x, y, 1, 1);
@@ -357,28 +397,56 @@ void dispdrvDrawPixel(int16_t x, int16_t y, uint16_t color)
 
     DISP_WAIT_BUSY();
     SET(DISP_CS);
+#endif
 }
 
-void dispdrvDrawRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color)
+void dispdrvDrawRect(int16_t x, int16_t y, int16_t w, int16_t h, color_t color)
 {
+#ifndef _DISP_FB
     CLR(DISP_CS);
+#endif
 
-    dispdrv.setWindow(x, y, w, h);
+    dispdrvSetWindow(x, y, w, h);
 
     for (int32_t i = 0; i < w * h; i++) {
         dispdrvSendColor(color);
     }
 
+#ifndef _DISP_FB
     DISP_WAIT_BUSY();
     SET(DISP_CS);
+#endif
 }
 
-void dispdrvDrawImage(tImage *img, int16_t x, int16_t y, uint16_t color, uint16_t bgColor,
+void dispdrvDrawVertGrad(int16_t x, int16_t y, int16_t w, int16_t h, color_t *gr)
+{
+#ifndef _DISP_FB
+    CLR(DISP_CS);
+#endif
+
+    dispdrvSetWindow(x, y, w, h);
+
+    for (int32_t i = 0; i < w; i++) {
+        color_t *color = gr;
+        for (int32_t j = 0; j < h; j++) {
+            dispdrvSendColor(*color++);
+        }
+    }
+
+#ifndef _DISP_FB
+    DISP_WAIT_BUSY();
+    SET(DISP_CS);
+#endif
+}
+
+void dispdrvDrawImage(tImage *img, int16_t x, int16_t y, color_t color, color_t bgColor,
                       int16_t xOft, int16_t yOft, int16_t w, int16_t h)
 {
+#ifndef _DISP_FB
     CLR(DISP_CS);
+#endif
 
-    dispdrv.setWindow(x, y, w, h);
+    dispdrvSetWindow(x, y, w, h);
 
     for (int16_t i = 0; i < w; i++) {
         for (int16_t j = 0; j < h; j++) {
@@ -389,6 +457,8 @@ void dispdrvDrawImage(tImage *img, int16_t x, int16_t y, uint16_t color, uint16_
         }
     }
 
+#ifndef _DISP_FB
     DISP_WAIT_BUSY();
     SET(DISP_CS);
+#endif
 }

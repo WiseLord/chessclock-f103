@@ -30,7 +30,7 @@ const Layout *layoutGet(void);
 void canvasInit(void)
 {
     glcdInit(&canvas.glcd);
-    dispdrvSetBrightness(LCD_BR_MAX);
+    screenSetBrightness(LCD_BR_MAX);
 
     canvas.layout = layoutGet();
 

@@ -80,7 +80,7 @@ static int16_t menuGetValue(MenuIdx index)
         break;
 
     case MENU_DISPLAY_ROTATE:
-        ret = glcdGetRotate();
+        ret = (glcdGet()->orientation == GLCD_LANDSCAPE_ROT);
         break;
     case MENU_DISPLAY_PALETTE:
         ret = paletteGetIndex();
@@ -109,12 +109,12 @@ static void menuStoreCurrentValue(void)
         break;
 
     case MENU_DISPLAY_ROTATE:
-        glcdRotate((bool)menu.value);
+        glcdSetOrientation(menu.value ? GLCD_LANDSCAPE_ROT : GLCD_LANDSCAPE);
         canvasClear();
         break;
     case MENU_DISPLAY_PALETTE:
         paletteSetIndex((PalIdx)menu.value);
-        canvasGet()->pal = paletteGet((PalIdx)menu.value);
+        canvasGet()->pal = paletteGet();
         break;
 
     default:

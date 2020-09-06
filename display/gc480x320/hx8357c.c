@@ -1,6 +1,6 @@
 #include "../dispdrv.h"
 
-void rm68140Init(void)
+void hx8357cInit(void)
 {
     CLR(DISP_CS);
 
@@ -11,13 +11,16 @@ void rm68140Init(void)
     dispdrvSelectReg8(0x3A);    // Interface Pixel Format
     dispdrvSendData8(0x55);
 
-    dispdrvSelectReg8(0xB6);    // Display function control
-    dispdrvSendData8(0x00);     // BYPASS, RCM, RM, DM, PGT1, PGT0, PT1, PT0
-    dispdrvSendData8(0x62);     // 0, GS, SS, SM, ICS3, ICS2, ICS1, ICS0
-    dispdrvSendData8(0x3B);     // 0, 0, NL5, NL4, NL3, NL2, NL1, NL0
+//    dispdrvSelectReg8(0xB6);    // Display function control
+//    dispdrvSendData8(0x00);     // BYPASS, RCM, RM, DM, PGT1, PGT0, PT1, PT0
+//    dispdrvSendData8(0x62);     // 0, GS, SS, SM, ICS3, ICS2, ICS1, ICS0
+//    dispdrvSendData8(0x3B);     // 0, 0, NL5, NL4, NL3, NL2, NL1, NL0
 
-    dispdrvSelectReg8(0x36);
-    dispdrvSendData8(0x08);     // MY, MX, MV, ML, RGB, MH, H_FLIP, V_FLIP
+//    dispdrvSelectReg8(0x36);
+//    dispdrvSendData8(0x08);     // MY, MX, MV, ML, RGB, MH, H_FLIP, V_FLIP
+
+    dispdrvSelectReg8(0x7F);
+    dispdrvSendData8(0x01);
 
     dispdrvSelectReg8(0x20);    // Display inversion off
 
@@ -29,7 +32,7 @@ void rm68140Init(void)
     SET(DISP_CS);
 }
 
-void rm68140Rotate(bool rotate)
+void hx8357cRotate(bool rotate)
 {
     CLR(DISP_CS);
 
@@ -49,7 +52,7 @@ void rm68140Rotate(bool rotate)
     SET(DISP_CS);
 }
 
-void rm68140Shift(int16_t value)
+void hx8357cShift(int16_t value)
 {
     CLR(DISP_CS);
 
@@ -69,7 +72,7 @@ void rm68140Shift(int16_t value)
     SET(DISP_CS);
 }
 
-void rm68140Sleep(bool value)
+void hx8357cSleep(bool value)
 {
     CLR(DISP_CS);
 
@@ -83,11 +86,10 @@ void rm68140Sleep(bool value)
         dispdrvSelectReg8(0x29);
     }
 
-    DISP_WAIT_BUSY();
     SET(DISP_CS);
 }
 
-void rm68140SetWindow(int16_t x, int16_t y, int16_t w, int16_t h)
+void hx8357cSetWindow(int16_t x, int16_t y, int16_t w, int16_t h)
 {
     int16_t x1 = x + w - 1;
     int16_t y1 = y + h - 1;
@@ -111,9 +113,9 @@ void rm68140SetWindow(int16_t x, int16_t y, int16_t w, int16_t h)
 const DispDriver dispdrv = {
     .width = 480,
     .height = 320,
-    .init = rm68140Init,
-    .sleep = rm68140Sleep,
-    .setWindow = rm68140SetWindow,
-    .rotate = rm68140Rotate,
-    .shift = rm68140Shift,
+    .init = hx8357cInit,
+    .sleep = hx8357cSleep,
+    .setWindow = hx8357cSetWindow,
+    .rotate = hx8357cRotate,
+    .shift = hx8357cShift,
 };

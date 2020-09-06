@@ -109,8 +109,8 @@ void screenPwm(void)
     }
 
     if (br == screen.brightness) {
-        pinsSetBckl(false);
+        glcdSetBacklight(false);
     } else if (br == 0) {
-        pinsSetBckl(true);
+        glcdSetBacklight(true);
     }
 }

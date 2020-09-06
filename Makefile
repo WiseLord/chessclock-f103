@@ -23,6 +23,7 @@ C_DEFS = -DUSE_FULL_LL_DRIVER -D$(STM32_GROUP) -D_$(STM32_MCU)
 
 #C_DEFS += -D_DISP_READ_ENABLED
 #C_DEFS += -D_DISP_RST_ENABLED
+C_DEFS += -D_DISP_BCKL_ENABLED
 
 C_SOURCES = main.c
 
@@ -120,7 +121,8 @@ C_SOURCES += $(wildcard gui/icons/icon*.c)
 C_SOURCES += $(wildcard gui/widget/*.c)
 
 C_INCLUDES += \
-  -Idisplay
+  -Idisplay/fonts \
+  -I.
 
 C_SOURCES += \
   drivers/$(STM32_FAMILY)xx_HAL_Driver/Src/$(call lc, $(STM32_FAMILY))xx_ll_gpio.c \

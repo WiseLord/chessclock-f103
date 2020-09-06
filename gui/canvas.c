@@ -29,17 +29,17 @@ const Layout *layoutGet(void);
 
 void canvasInit(void)
 {
-    glcdInit(&canvas.glcd);
-    screenSetBrightness(LCD_BR_MAX);
+    bool rotate = settingsGet(PARAM_DISPLAY_ROTATE);
+    glcdInit(rotate ? GLCD_LANDSCAPE_ROT : GLCD_LANDSCAPE);
 
+    canvas.glcd = glcdGet();
     canvas.layout = layoutGet();
 
-    PalIdx palIdx = (PalIdx)(settingsRead(PARAM_DISPLAY_PALETTE));
+    PalIdx palIdx = (PalIdx)settingsGet(PARAM_DISPLAY_PALETTE);
     paletteSetIndex(palIdx);
-    canvas.pal = paletteGet(palIdx);
+    canvas.pal = paletteGet();
 
-    bool rotate = (bool)(settingsRead(PARAM_DISPLAY_ROTATE));
-    glcdRotate(rotate);
+    glcdDrawRect(0, 0, dispdrv.width, dispdrv.height, canvas.pal->bg);
 
     canvas.glcd->rect = canvas.layout->rect;
 

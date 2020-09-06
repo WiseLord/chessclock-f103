@@ -4,6 +4,8 @@ build_all.sh
 
 chess.c
 chess.h
+display/colors.h
+display/dispconf.h
 display/fonts.h
 display/fonts/font-terminus-12.c
 display/fonts/font-terminus-14b.c
@@ -64,6 +66,8 @@ display/dispdrv.h
 display/glcd.c
 display/glcd.h
 
+display/hw_stm32f1_ll.h
+display/hw_stm32f3_ll.h
 drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xb.h
 drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f1xx.h
 drivers/CMSIS/Device/ST/STM32F1xx/Include/system_stm32f1xx.h
@@ -168,6 +172,7 @@ settings.c
 settings.h
 swtimers.c
 swtimers.h
+system/stm32f303cb_flash.ld
 timers.c
 timers.h
 usart.c

@@ -16,7 +16,7 @@ void ssd1322Init(void)
     dispdrvSelectReg8(SSD1322_SET_DISPLAY_OFF);
 
     dispdrvSelectReg8(SSD1322_SET_CLOCK_DIVIDER);// 0xB3
-    dispdrvSendData8(0x91);
+    dispdrvSendData8(0xB0);
 
     dispdrvSelectReg8(SSD1322_SET_MUX_RATIO);
     dispdrvSendData8(0x3F); // 64MUX (reset 0x7F => 128MUX)
@@ -42,7 +42,7 @@ void ssd1322Init(void)
     dispdrvSendData8(0xFD); // Enhanced low GS display quality; (reset 0xB5 (normal)),
 
     dispdrvSelectReg8(SSD1322_SET_CONTRAST_CURRENT);
-    dispdrvSendData8(0xFF); // (reset 0x7F)
+    dispdrvSendData8(0x7F); // (reset 0x7F)
 
     dispdrvSelectReg8(SSD1322_MASTER_CURRENT_CONTROL);
     dispdrvSendData8(0x0F); // (reset)
@@ -90,12 +90,12 @@ void ssd1322Init(void)
     SET(DISP_CS);
 }
 
-void ssd1322Rotate(uint8_t rotate)
+void ssd1322Rotate(bool rotate)
 {
     CLR(DISP_CS);
 
     dispdrvSelectReg8(SSD1322_SET_REMAP_AND_DUAL_COM_LINE_MODE);
-    dispdrvSendData8(rotate & LCD_ROTATE_180 ? 0x14 : 0x06);
+    dispdrvSendData8(rotate ? 0x14 : 0x06);
     dispdrvSendData8(0x11);
 
     dispdrvSelectReg8(SSD1322_SET_PHASE_LENGTH);

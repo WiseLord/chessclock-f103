@@ -89,36 +89,62 @@ static UChar findSymbolCode(const char **string)
     return BLOCK_CHAR;
 }
 
-void glcdInit(Glcd **value)
+void glcdInit(GlcdOrientation value)
 {
     dispdrvInit();
+
     glcd.drv = &dispdrv;
-    glcd.rect.x = 0;
-    glcd.rect.y = 0;
-    glcd.rect.w = dispdrv.width;
-    glcd.rect.h = dispdrv.height;
 
-    *value = &glcd;
+    glcdSetOrientation(value);
 }
 
-bool glcdGetRotate(void)
+void glcdSetBacklight(bool value)
 {
-    return glcd.rotate;
+#ifdef _DISP_BCKL_ENABLED
+    if (value) {
+        SET(DISP_BCKL);
+    } else {
+        CLR(DISP_BCKL);
+    }
+#else
+    (void)value;
+#endif
 }
 
-void glcdRotate(uint8_t rotate)
+Glcd *glcdGet(void)
 {
-    glcd.rotate = rotate;
+    return &glcd;
+}
+
+void glcdSetOrientation(GlcdOrientation value)
+{
+    glcd.orientation = value;
 
     if (glcd.drv->rotate) {
-        glcd.drv->rotate(rotate ? LCD_ROTATE_180 : LCD_ROTATE_0);
+        glcd.drv->rotate(value & GLCD_LANDSCAPE_ROT);
     }
+
+    glcdResetRect();
 }
 
 void glcdShift(int16_t pos)
 {
     if (glcd.drv->shift) {
         glcd.drv->shift(pos);
+    }
+}
+
+void glcdSleep(bool value)
+{
+    if (glcd.drv->sleep) {
+        glcd.drv->sleep(value);
+    }
+}
+
+void glcdSetIdle(bool value)
+{
+    if (glcd.drv->setIdle) {
+        glcd.drv->setIdle(value);
     }
 }
 
@@ -136,6 +162,24 @@ void glcdSetRect(const GlcdRect *rect)
     glcd.rect.y = rect->y;
     glcd.rect.w = rect->w;
     glcd.rect.h = rect->h;
+}
+
+void glcdSetRectValues(int16_t x, int16_t y, int16_t w, int16_t h)
+{
+    glcd.rect.x = x;
+    glcd.rect.y = y;
+    glcd.rect.w = w;
+    glcd.rect.h = h;
+}
+
+void glcdResetRect(void)
+{
+    bool portrate = (glcd.orientation & GLCD_PORTRATE);
+
+    glcd.rect.x = 0;
+    glcd.rect.y = 0;
+    glcd.rect.w = portrate ? dispdrv.height : dispdrv.width;
+    glcd.rect.h = portrate ? dispdrv.width : dispdrv.height;
 }
 
 GlcdRect *glcdGetRect(void)
@@ -158,7 +202,7 @@ void glcdSetFontBgColor(color_t color)
     glcd.fontBg = color;
 }
 
-void glcdSetFontAlign(uint8_t align)
+void glcdSetFontAlign(GlcdAlign align)
 {
     glcd.fontAlign = align;
 }
@@ -254,7 +298,10 @@ void glcdDrawImage(const tImage *img, color_t color, color_t bgColor)
     x += rect->x;
     y += rect->y;
 
-    dispdrvDrawImage(imgUnRle, x, y, color, bgColor,
+    bool portrate = (glcd.orientation & GLCD_PORTRATE);
+
+    dispdrvDrawImage(imgUnRle, portrate, x, y,
+                     color, bgColor,
                      xOft, yOft, w, h);
 
     free(unRleData);
@@ -304,8 +351,9 @@ int16_t glcdWriteUChar(UChar code)
 
     int16_t pos = glcdFontSymbolPos(code);
 
-    if (pos < 0)
+    if (pos < 0) {
         return 0;
+    }
 
     img = glcd.font->chars[pos].image;
 
@@ -314,12 +362,23 @@ int16_t glcdWriteUChar(UChar code)
     return img->width;
 }
 
+int16_t glcdCalcUCharLen(UChar code)
+{
+    int16_t pos = glcdFontSymbolPos(code);
+
+    if (pos < 0) {
+        return 0;
+    }
+
+    return glcd.font->chars[pos].image->width;
+}
+
 void glcdSetStringFramed(bool framed)
 {
     glcd.strFramed = framed;
 }
 
-uint16_t glcdWriteString(const char *string)
+int16_t glcdWriteString(const char *string)
 {
     if (string == NULL) {
         return 0;
@@ -327,17 +386,22 @@ uint16_t glcdWriteString(const char *string)
 
     UChar code = 0;
     const char *str = string;
-    uint16_t ret = 0;
+    int16_t ret = 0;
 
     const tFont *font = glcd.font;
+
+    if (font == NULL) {
+        return 0;
+    }
 
     if (glcd.fontAlign != GLCD_ALIGN_LEFT) {
         uint16_t strLength = 0;
         int16_t pos = glcdFontSymbolPos(LETTER_SPACE_CHAR);
         int16_t sWidth = font->chars[pos].image->width;
 
-        if (glcd.strFramed)
-            strLength += sWidth;
+        if (glcd.strFramed) {
+            strLength += 2 * sWidth;
+        }
         while (*str) {
             code = findSymbolCode(&str);
             pos = glcdFontSymbolPos(code);
@@ -346,8 +410,6 @@ uint16_t glcdWriteString(const char *string)
                 strLength += sWidth;
             }
         }
-        if (glcd.strFramed)
-            strLength += sWidth;
 
         if (glcd.fontAlign == GLCD_ALIGN_CENTER) {
             glcdSetX(glcd.x - strLength / 2);
@@ -361,17 +423,46 @@ uint16_t glcdWriteString(const char *string)
 
     str = string;
 
-    if (glcd.strFramed)
+    if (glcd.strFramed) {
         ret += glcdWriteUChar(LETTER_SPACE_CHAR);
+    }
     while (*str) {
         code = findSymbolCode(&str);
 
         ret += glcdWriteUChar(code);
-        if (*str)
+        if (*str) {
             ret += glcdWriteUChar(LETTER_SPACE_CHAR);
+        }
     }
-    if (glcd.strFramed)
+    if (glcd.strFramed) {
         ret += glcdWriteUChar(LETTER_SPACE_CHAR);
+    }
+
+    return ret;
+}
+
+int16_t glcdCalcStringLen(const char *string)
+{
+    if (string == NULL) {
+        return 0;
+    }
+
+    UChar code = 0;
+    const char *str = string;
+    int16_t ret = 0;
+
+    if (glcd.strFramed) {
+        ret += 2 * glcdCalcUCharLen(LETTER_SPACE_CHAR);
+    }
+
+    while (*str) {
+        code = findSymbolCode(&str);
+
+        ret += glcdCalcUCharLen(code);
+        if (*str) {
+            ret += glcdCalcUCharLen(LETTER_SPACE_CHAR);
+        }
+    }
 
     return ret;
 }
@@ -390,7 +481,13 @@ void glcdDrawPixel(int16_t x, int16_t y, color_t color)
     x += rect->x;
     y += rect->y;
 
-    dispdrvDrawPixel(x, y, color);
+    bool portrate = (glcd.orientation & GLCD_PORTRATE);
+
+    if (portrate) {
+        dispdrvDrawPixel(y, dispdrv.height - 1 - x, color);
+    } else {
+        dispdrvDrawPixel(x, y, color);
+    }
 }
 
 void glcdDrawRect(int16_t x, int16_t y, int16_t w, int16_t h, color_t color)
@@ -424,7 +521,13 @@ void glcdDrawRect(int16_t x, int16_t y, int16_t w, int16_t h, color_t color)
     x += rect->x;
     y += rect->y;
 
-    dispdrvDrawRect(x, y, w, h, color);
+    bool portrate = (glcd.orientation & GLCD_PORTRATE);
+
+    if (portrate) {
+        dispdrvDrawRect(y, dispdrv.height - w - x, h, w, color);
+    } else {
+        dispdrvDrawRect(x, y, w, h, color);
+    }
 }
 
 void glcdDrawVertGrad(int16_t x, int16_t y, int16_t w, int16_t h, color_t *gr)
@@ -458,7 +561,13 @@ void glcdDrawVertGrad(int16_t x, int16_t y, int16_t w, int16_t h, color_t *gr)
     x += rect->x;
     y += rect->y;
 
-    dispdrvDrawVertGrad(x, y, w, h, gr);
+    bool portrate = (glcd.orientation & GLCD_PORTRATE);
+
+    if (portrate) {
+        dispdrvDrawVertGrad(y, dispdrv.height - w - x, h, w, gr);
+    } else {
+        dispdrvDrawVertGrad(x, y, w, h, gr);
+    }
 }
 
 void glcdDrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, color_t color)
@@ -569,8 +678,6 @@ void glcdDrawCircle(int16_t xc, int16_t yc, int16_t r,
     int16_t x = 0;
     int16_t y = r;
 
-    glcdDrawLine(xc - r, yc, xc + r, yc, color);
-
     while (x < y) {
         if (f >= 0) {
             y--;
@@ -583,9 +690,11 @@ void glcdDrawCircle(int16_t xc, int16_t yc, int16_t r,
 
         glcdDrawLine(xc - x, yc + y, xc + x, yc + y, color);
         glcdDrawLine(xc - x, yc - y, xc + x, yc - y, color);
-        glcdDrawLine(xc - y, yc + x, xc + y, yc + x, color);
-        glcdDrawLine(xc - y, yc - x, xc + y, yc - x, color);
+        glcdDrawLine(xc - y, yc - x, xc - y, yc + x, color);
+        glcdDrawLine(xc + y, yc - x, xc + y, yc + x, color);
     }
+
+    glcdDrawRect(xc - x, yc - y, 2 * x, 2 * y, color);
 }
 
 void glcdDrawRing(int16_t xc, int16_t yc, int16_t r, int16_t t, color_t color)

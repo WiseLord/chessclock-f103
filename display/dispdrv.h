@@ -5,38 +5,19 @@
 extern "C" {
 #endif
 
+#include "dispconf.h"
+
 #include <stdint.h>
 
-#include "../pins.h"
-#include "../utils.h"
+#include "colors.h"
 #include "fonts.h"
-
-#ifdef _DISP_SPI
-#include "../spi.h"
-#define SPI_DISPLAY             SPI2
-#define DISP_WAIT_BUSY()        spiWaitBusy(SPI_DISPLAY)
-#else
-#define DISP_WAIT_BUSY()        (void)0
-#endif
-
-#define LCD_ROTATE_0        0x00
-#define LCD_ROTATE_180      0x02
-
-#define LCD_BR_MIN          1
-#define LCD_BR_MAX          32
-
-#ifdef _SSD1322
-typedef uint8_t color_t;
-#else
-typedef uint16_t color_t;
-#endif
 
 typedef struct {
     void (*init)(void);
-    void (*sleep)(void);
-    void (*wakeup)(void);
+    void (*sleep)(bool value);
+    void (*setIdle)(bool value);
     void (*setWindow)(int16_t x, int16_t y, int16_t w, int16_t h);
-    void (*rotate)(uint8_t rotate);
+    void (*rotate)(bool value);
     void (*shift)(int16_t value);
 
     void *fb;
@@ -69,9 +50,10 @@ void dispdrvReadReg(uint16_t reg, uint16_t *args, uint8_t nArgs);
 void dispdrvDrawPixel(int16_t x, int16_t y, color_t color);
 void dispdrvDrawRect(int16_t x, int16_t y, int16_t w, int16_t h, color_t color);
 
-void dispdrvDrawVertGrad(int16_t x, int16_t y, int16_t w, int16_t h, color_t *gradient);
+void dispdrvDrawVertGrad(int16_t x, int16_t y, int16_t w, int16_t h, color_t *gr);
 
-void dispdrvDrawImage(tImage *img, int16_t x, int16_t y, color_t color, color_t bgColor,
+void dispdrvDrawImage(tImage *img, bool portrate, int16_t x, int16_t y,
+                      color_t color, color_t bgColor,
                       int16_t xOft, int16_t yOft, int16_t w, int16_t h);
 
 #ifdef __cplusplus

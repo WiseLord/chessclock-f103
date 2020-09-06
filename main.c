@@ -86,6 +86,7 @@ int main(void)
     dbgInit();
 
     screenInit();
+    screenSetBrightness(LCD_BR_MAX / 2);
 
     inputInit();
 

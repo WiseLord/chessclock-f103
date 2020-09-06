@@ -10,6 +10,9 @@ extern "C" {
 
 #include "gui/icons.h"
 
+#define LCD_BR_MIN          1
+#define LCD_BR_MAX          32
+
 typedef uint8_t ScreenMode;
 enum {
     SCREEN_CHESS = 0,

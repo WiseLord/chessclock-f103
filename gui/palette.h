@@ -7,7 +7,7 @@ extern "C" {
 
 #include <stdint.h>
 
-#include "../display/glcd.h"
+#include "display/glcd.h"
 
 typedef struct {
     color_t fg;
@@ -31,7 +31,7 @@ enum {
     PAL_END
 };
 
-const Palette *paletteGet(PalIdx index);
+const Palette *paletteGet(void);
 PalIdx paletteGetIndex(void);
 void paletteSetIndex(PalIdx index);
 
